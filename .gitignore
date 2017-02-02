@@ -4,3 +4,13 @@ src/grapher_cmd.c
 src/grapher_cmd
 
 *.o
+
+.idea/Grapher.iml
+
+.idea/misc.xml
+
+.idea/modules.xml
+
+.idea/vcs.xml
+
+.idea/workspace.xml
