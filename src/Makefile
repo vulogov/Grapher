@@ -2,7 +2,7 @@ PYINC = $(shell python-config --includes)
 PYLIB = $(shell python-config --libs)
 .SUFFIXES:
 .SUFFIXES: .o .c .py
-SRC = grapher_module.py grapher_clips.py
+SRC = grapher_module.py grapher_clips.py grapher_lib.py grapher_config.py
 COBJ = ${SRC:.py=.c}
 OBJ = grapher_cmd.o 
 MOBJ = ${COBJ:.c=.o}
@@ -10,7 +10,7 @@ GCMD = grapher_cmd
 GMOD = Grapher.so
 
 all: $(SRC) $(GCMD) $(GMOD)
-$(GCMD): $(OBJ)
+$(GCMD): $(OBJ) $(SRC) Grapher.pyx
 	gcc -o $@ $(PYINC) $(OBJ) $(PYLIB)
 $(GMOD): Grapher.pyx $(SRC)
 	cython Grapher.pyx
