@@ -2,21 +2,23 @@ PYINC = $(shell python-config --includes)
 PYLIB = $(shell python-config --libs)
 .SUFFIXES:
 .SUFFIXES: .o .c .py
-SRC = grapher.py 
+SRC = grapher_module.py grapher_clips.py
 COBJ = ${SRC:.py=.c}
-OBJ = grapher_cmd.o ${COBJ:.c=.o}
+OBJ = grapher_cmd.o 
+MOBJ = ${COBJ:.c=.o}
 GCMD = grapher_cmd
+GMOD = Grapher.so
 
-all: $(SRC) $(GCMD)
+all: $(SRC) $(GCMD) $(GMOD)
 $(GCMD): $(OBJ)
 	gcc -o $@ $(PYINC) $(OBJ) $(PYLIB)
-grapher_cmd.c: grapher_cmd.py
-	cython --embed grapher_cmd.py
+$(GMOD): Grapher.pyx $(SRC)
+	cython Grapher.pyx
+	gcc -fPIC -c $(PYINC) Grapher.c
+	gcc -shared -o $@ Grapher.o
+grapher_cmd.c: grapher_cmd.pyx
+	cython --embed grapher_cmd.pyx
 grapher_cmd.o: grapher_cmd.c
 	gcc -c $(PYINC)  grapher_cmd.c
-.py.c:
-	cython -o $@ $<
-.c.o:
-	gcc -c $(PYINC) $< -o $@
 clean:
-	rm -f *.c *.o grapher_cmd
+	rm -f *.c *.o grapher_cmd *.so

@@ -14,3 +14,15 @@ src/grapher_cmd
 .idea/vcs.xml
 
 .idea/workspace.xml
+
+.idea/dbnavigator.xml
+
+.idea/emacs.xml
+
+src/Grapher.c
+
+*.db
+
+*.db
+
+src/GRAPHER.db
