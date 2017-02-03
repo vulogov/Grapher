@@ -11,6 +11,7 @@ def main():
     params['models'] = config.args.model
     params['bootstrap'] = config.bootstrap_file
     params['initial_facts'] = config.initial_facts
+
     grapher = Grapher(params)
     print CTX
 

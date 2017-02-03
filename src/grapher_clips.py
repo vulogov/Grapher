@@ -105,7 +105,7 @@ class ENV(CLPEXEC,LOADER):
         self.env.SetCurrent()
 
 class CLP(ENV,PYLOADER):
-    def __init__(self, **kw):
+    def __init__(self, arg={}, **kw):
         import posixpath
         self.python_path = []
         self.bootstrap_file = None
@@ -113,68 +113,51 @@ class CLP(ENV,PYLOADER):
         self.initial_facts = None
         self.initial_facts_dir=None
 
+
+        for k in arg.keys():
+            kw[k] = arg[k]
         if kw.has_key("bootstrap") and check_file_read(kw["bootstrap"]):
             self.bootstrap_file = kw["bootstrap"]
-        if kw.has_key("model") and check_file_read(kw["model"]):
-            self.model = kw["model"]
-        else:
-            self.model = None
         if kw.has_key("initial_facts") and check_file_read(kw["initial_facts"]):
             self.initial_facts = kw["initial_facts"]
-        if kw.has_key("initial_facts_dir") and check_file_read(kw["initial_facts_dir"]):
-            self.initial_facts = kw["initial_facts_dir"]
-        if kw.has_key("model_path") and check_directory(kw["model_path"]):
-            self.model_path = kw["model_path"]
-        else:
-            self.model_path = None
         if kw.has_key("models"):
             self.models = kw["models"]
         else:
             self.models = []
         ENV.__init__(self)
-        PYLOADER.__init__(self, self.python_path)
+        PYLOADER.__init__(self)
         ## Reload CLIPS modules
         for dir in self.mods.keys():
             for mod in self.mods[dir].keys():
-                self.main.log("debug", "Loading PYCLIPS: %s"%mod)
                 self.load_module(mod)
         if self.bootstrap_file != None:
             ## We do have a bootstrap
             try:
                 clips.Load(self.bootstrap_file)
-            except:
+            except KeyboardInterrupt:
                 raise ValueError, "Can not load bootstrap.clp"
             clp_base = posixpath.dirname(self.bootstrap_file)+"/bootstrap"
             if check_directory(clp_base):
                 self.bootstrap_dir(clp_base)
-            other_base = os.environ["HOME"]+".zpp/bootstrap"
+            other_base = os.environ["HOME"]+".grapher/bootstrap"
             if check_directory(other_base):
                 self.bootstrap_dir(other_base)
-        ## Load model
-        if self.model != None:
-            try:
-                clips.Load(self.model)
-            except:
-                raise ValueError, "Failed to load model"
-        elif self.model_path != None and len(self.models) > 0:
-            pm = 0
-            for m in self.models:
-                mfile = "%s/%s.clp"%(self.model_path, m)
-                if check_file_read(mfile):
-                    try:
-                        clips.Load(mfile)
-                    except:
-                        continue
-                    pm += 1
-            if pm == 0:
-                raise ValueError, "Not enough models"
-        else:
-            raise ValueError, "Mo model specified"
-        ## Load initial facts
-        self.bootstrap_facts(self.initial_facts_dir)
-        if self.initial_facts and check_file_read(self.initial_facts):
-            clips.LoadFacts(self.initial_facts)
-        self.main.log("debug", "ZPP CLP initialized")
+            self.ReloadModels()
+    def ReloadModels(self):
+        ## Load models
+        for m in self.models:
+            if not check_file_read(m):
+                raise ValueError, "Can not open %s"%m
+            p = m.split(".")[-1].lower()
+            if p == "clp":
+                ## This is the Rule
+                clips.Load(m)
+            if p == "fact":
+                ## This is a Fact
+                clips.LoadFacts(m)
+            else:
+                raise ValueError, "I do not know what to do with %s"%m
+    ## First, let's detect if it is a Fact or Rule
     def Run(self):
         import traceback
         clips.Run()

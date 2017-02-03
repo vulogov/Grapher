@@ -11,9 +11,9 @@ class GrapherDBDriver:
         pass
 class GrapherClips:
     def __init__(self):
-        pass
+        self.clp = CLP(self.args)
 
-class Grapher(GrapherDBDriver, GrapherLogger):
+class Grapher(GrapherDBDriver, GrapherLogger, GrapherClips):
     def __init__(self, params={}, **kw):
         global CTX
         for k in kw.keys():
@@ -21,5 +21,6 @@ class Grapher(GrapherDBDriver, GrapherLogger):
         self.args = params
         GrapherLogger.__init__(self)
         GrapherDBDriver.__init__(self)
+        GrapherClips.__init__(self)
         CTX = self
         print self.args

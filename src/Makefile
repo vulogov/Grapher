@@ -16,7 +16,7 @@ $(GMOD): Grapher.pyx $(SRC)
 	cython Grapher.pyx
 	gcc -fPIC -c $(PYINC) Grapher.c
 	gcc -shared -o $@ Grapher.o
-grapher_cmd.c: grapher_cmd.pyx
+grapher_cmd.c: grapher_cmd.pyx Grapher.pyx
 	cython --embed grapher_cmd.pyx
 grapher_cmd.o: grapher_cmd.c
 	gcc -c $(PYINC)  grapher_cmd.c

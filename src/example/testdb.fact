@@ -1,0 +1,7 @@
+;;
+;; Point at test SQLITE database oin /tmp
+;;
+(SQLITEDB
+    (dbpath "/tmp")
+    (schemapath "../db/sql/sqlite3")
+)
