@@ -26,3 +26,5 @@ src/Grapher.c
 *.db
 
 src/GRAPHER.db
+
+src/Grapher.so
