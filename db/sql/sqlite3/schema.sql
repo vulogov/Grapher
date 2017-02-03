@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS OBJECT (
     d_num INTEGER,
     d_data TEXT
 );
--- CREATE INDEX O1 ON (uuid,ver);
+CREATE INDEX O_1 ON OBJECT (uuid,ver);
 
 CREATE TABLE IF NOT EXISTS RELATION (
     o_uuid TEXT,
@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS RELATION (
     d_ver  INTEGER,
     l_name TEXT
 );
--- CREATE INDEX R_1 (o_uuid,o_ver);
--- CREATE INDEX R_1 (d_uuid,d_ver);
+CREATE INDEX R_1 ON RELATION (o_uuid,o_ver);
+CREATE INDEX R_2 ON RELATION (d_uuid,d_ver);
 
 
 
