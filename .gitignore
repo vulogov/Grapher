@@ -28,3 +28,5 @@ src/Grapher.c
 src/GRAPHER.db
 
 src/Grapher.so
+
+*.pyc

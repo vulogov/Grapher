@@ -7,6 +7,7 @@ class PYLOADER:
     def __init__(self, python_path=[]):
         self.python_path = []
         self.mods = {}
+        print "PPA", python_path
         for d in list(python_path):
             if check_directory(d):
                 self.python_path.append(d)
@@ -39,6 +40,7 @@ class PYLOADER:
             _path = self.python_path
         else:
             _path = path
+        print "PATH",_path
         for p in _path:
             if not self.mods.has_key(p):
                 self.mods[p] = {}
@@ -105,13 +107,14 @@ class ENV(CLPEXEC,LOADER):
         self.env.SetCurrent()
 
 class CLP(ENV,PYLOADER):
-    def __init__(self, arg={}, **kw):
+    def __init__(self, ctx, arg={}, **kw):
         import posixpath
         self.python_path = []
         self.bootstrap_file = None
         self.model = None
         self.initial_facts = None
         self.initial_facts_dir=None
+        self.CTX = ctx
 
 
         for k in arg.keys():
@@ -120,16 +123,21 @@ class CLP(ENV,PYLOADER):
             self.bootstrap_file = kw["bootstrap"]
         if kw.has_key("initial_facts") and check_file_read(kw["initial_facts"]):
             self.initial_facts = kw["initial_facts"]
+        if kw.has_key("python_path"):
+            self.python_path = kw["python_path"]
         if kw.has_key("models"):
             self.models = kw["models"]
         else:
             self.models = []
         ENV.__init__(self)
-        PYLOADER.__init__(self)
+        PYLOADER.__init__(self, self.python_path)
         ## Reload CLIPS modules
+        print "MODS",self.mods
         for dir in self.mods.keys():
             for mod in self.mods[dir].keys():
                 self.load_module(mod)
+        self.ReloadModels()
+    def ReloadModels(self):
         if self.bootstrap_file != None:
             ## We do have a bootstrap
             try:
@@ -142,8 +150,6 @@ class CLP(ENV,PYLOADER):
             other_base = os.environ["HOME"]+".grapher/bootstrap"
             if check_directory(other_base):
                 self.bootstrap_dir(other_base)
-            self.ReloadModels()
-    def ReloadModels(self):
         ## Load models
         for m in self.models:
             if not check_file_read(m):
@@ -178,16 +184,20 @@ class CLP(ENV,PYLOADER):
     def load_module(self, name):
         import fnmatch
         mod = self.find_the_mod(name)
+        mod.CTX = self.CTX
+        mod.m_globals = globals()
         if mod == None:
             raise ValueError
         c = 0
         for e in dir(mod):
             if fnmatch.fnmatch(e, "*_clips"):
                 fun_name = rchop(e,"_clips")
+                #print "!!!",fun_name,e,mod,fun_name,dir(mod)
                 try:
                     fun = getattr(mod, fun_name)
-                except:
+                except KeyboardInterrupt:
                     continue
+                print "!!!",fun
                 clips.RegisterPythonFunction(fun)
                 clips.Build(getattr(mod, e))
                 c += 1

@@ -35,6 +35,7 @@ class ClipsConfig:
         self.parser.add_argument("-c", "--config", type=str, default="/etc/grapher",
                                  help="Path to the config (bootstrap) directory")
         self.parser.add_argument("--trace", "-t", action="store_true")
+        self.parser.add_argument("--shell", "-i", action="store_true")
         self.ready -= 1
     def process(self):
         if not check_directory(self.args.config):
